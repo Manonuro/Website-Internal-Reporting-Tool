@@ -49,8 +49,8 @@ except psycopg2.Error, e:
 
 top_author = c.fetchall()
 print("\n\nThe most popular article authors of all time:\n")
-for author in top_author:
-    print('%s -- %s views' % (author[0], author[1]))
+for author, views in top_author:
+    print('%s -- %s views' % (author, views))
 
 
 """Extracting days with more than 1% of requests lead to errors"""
@@ -75,7 +75,7 @@ try:
              AND (100.*statNok.num/(statNok.num+statOk.num))>=1;""", stat)
 except psycopg2.Error, e:
     pass
-    
+
 error_days = c.fetchall()
 print("\n\nDays with more than 1% of requests lead to errors:\n")
 for item in error_days:
