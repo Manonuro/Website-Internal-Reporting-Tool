@@ -135,3 +135,12 @@ print("\n\nDays with more than 1% of requests lead to errors:\n")
 for item in error_days:
     print("%s -- %s%% errors" % (item[0], item[3]))
 ```
+
+
+## Authors
+
+* **Manouchehr Bagheri** - *Initial work* - [Manonuro](https://github.com/Manonuro)
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
