@@ -19,12 +19,15 @@ c = db.cursor()
 
 
 """Finding the most popular three articles of all time"""
-c.execute("""
-    SELECT title, count(*) AS num
-      FROM articles JOIN log
-             ON split_part(log.path, '/', 3)=articles.slug
-     GROUP BY articles.title
-     ORDER BY num DESC LIMIT 3;""")
+try:
+    c.execute("""
+        SELECT title, count(*) AS num
+          FROM articles JOIN log
+                 ON split_part(log.path, '/', 3)=articles.slug
+         GROUP BY articles.title
+         ORDER BY num DESC LIMIT 3;""")
+except psycopg2.Error, e:
+    pass
 
 top3title = c.fetchall()
 print("Finding the most popular three articles of all time:\n")
@@ -33,13 +36,16 @@ for title in top3title:
 
 
 """The most popular article authors of all time"""
-c.execute("""
-    SELECT authors.name,count(*) AS num
-      FROM articles, log, authors
-     WHERE split_part(log.path, '/', 3)=articles.slug
-       AND articles.author=authors.id
-     GROUP BY authors.name
-     ORDER BY num DESC;""")
+try:
+    c.execute("""
+        SELECT authors.name,count(*) AS num
+          FROM articles, log, authors
+         WHERE split_part(log.path, '/', 3)=articles.slug
+           AND articles.author=authors.id
+         GROUP BY authors.name
+         ORDER BY num DESC;""")
+except psycopg2.Error, e:
+    pass
 
 top_author = c.fetchall()
 print("\n\nThe most popular article authors of all time:\n")
@@ -49,24 +55,27 @@ for author in top_author:
 
 """Extracting days with more than 1% of requests lead to errors"""
 stat = ("200 OK", "404 NOT FOUND")
-c.execute("""
-    CREATE VIEW statviw AS
-         SELECT split_part(time::TEXT, ' ', 1) date, status, count(*) AS num
-           FROM log
-          GROUP BY date, status;
-      WITH statOk AS (SELECT DATE, status, num
-                        FROM statviw
-                       WHERE status=%s),
-           statNok AS (SELECT date, status, num
-                         FROM statviw
-                        WHERE status=%s)
-      SELECT statOk.date,statOk.num AS OK_count,
-             statNok.num AS NoK_count,
-             round((100.*statNok.num/(statNok.num+statOk.num)),2) AS percentg
-        FROM statOk,statNok
-       WHERE statOk.date=statNok.date
-         AND (100.*statNok.num/(statNok.num+statOk.num))>=1;""", stat)
-
+try:
+    c.execute("""
+        CREATE VIEW statviw AS
+             SELECT split_part(time::TEXT, ' ', 1) date, status, count(*) AS num
+               FROM log
+              GROUP BY date, status;
+          WITH statOk AS (SELECT DATE, status, num
+                            FROM statviw
+                           WHERE status=%s),
+               statNok AS (SELECT date, status, num
+                             FROM statviw
+                            WHERE status=%s)
+          SELECT statOk.date,statOk.num AS OK_count,
+                 statNok.num AS NoK_count,
+                 round((100.*statNok.num/(statNok.num+statOk.num)),2) AS percentg
+            FROM statOk,statNok
+           WHERE statOk.date=statNok.date
+             AND (100.*statNok.num/(statNok.num+statOk.num))>=1;""", stat)
+except psycopg2.Error, e:
+    pass
+    
 error_days = c.fetchall()
 print("\n\nDays with more than 1% of requests lead to errors:\n")
 for item in error_days:
