@@ -78,7 +78,7 @@ except psycopg2.Error, e:
 
 error_days = c.fetchall()
 print("\n\nDays with more than 1% of requests lead to errors:\n")
-for item in error_days:
-    print("%s -- %s%% errors" % (item[0], item[3]))
+for date, percentage in error_days:
+    print("%s -- %s%% errors" % (date, percentage))
 
 db.close()
